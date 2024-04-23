@@ -6,31 +6,35 @@ const API = {
 };
 
 
+
 async function run() {
     const orgOgrns = await sendRequest(API.organizationList);
     const ogrns = orgOgrns.join(",");
 
-    const requisites = await sendRequest(`${API.orgReqs}?ogrn=${ogrns}`);
-    const orgsMap = reqsToMap(requisites);
+    const promises = [
+        sendRequest(`${API.orgReqs}?ogrn=${ogrns}`), // Промис, который разрешится через 1 секунду
+        sendRequest(`${API.analytics}?ogrn=${ogrns}`), // Промис, который разрешится через 2 секунды
+        sendRequest(`${API.buhForms}?ogrn=${ogrns}`)  // Промис, который разрешится через 3 секунды
+    ];
 
-    const analytics = await sendRequest(`${API.analytics}?ogrn=${ogrns}`);
-    addInOrgsMap(orgsMap, analytics, "analytics");
-
-    const buh = await sendRequest(`${API.buhForms}?ogrn=${ogrns}`);
-    addInOrgsMap(orgsMap, buh, "buhForms");
-
-    render(orgsMap, orgOgrns);
+    Promise.all(promises)
+        .then(results => {
+            const requisites = results[0];
+            const analytics = results[1];
+            const buh = results[2];
+            const orgsMap = reqsToMap(requisites);
+            addInOrgsMap(orgsMap, analytics, "analytics");
+            addInOrgsMap(orgsMap, buh, "buhForms");
+            render(orgsMap, orgOgrns);
+        })
 }
 
-run();
-
-
 function sendRequest(url) {
-    return new Promise((resolve, reject) => {
+    return new Promise((resolve) => {
         fetch(url)
             .then(response => {
                 if (!response.ok) {
-                    throw new Error(`Request failed with status ${response.status}`);
+                    throw new Error(`${response.status} \n\n ${response.statusText}`);
                 }
                 return response.json();
             })
@@ -38,10 +42,13 @@ function sendRequest(url) {
                 resolve(data);
             })
             .catch(error => {
-                reject(new Error("Request failed: " + error.message));
+                alert(error.message);
             });
     });
 }
+
+run();
+
 
 
 function reqsToMap(requisites) {
