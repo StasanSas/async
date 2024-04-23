@@ -5,6 +5,7 @@ const API = {
     buhForms: "/api3/buh",
 };
 
+
 async function run() {
     const orgOgrns = await sendRequest(API.organizationList);
     const ogrns = orgOgrns.join(",");
@@ -26,22 +27,22 @@ run();
 
 function sendRequest(url) {
     return new Promise((resolve, reject) => {
-        const xhr = new XMLHttpRequest();
-        xhr.open("GET", url, true);
-
-        xhr.onreadystatechange = function () {
-            if (xhr.readyState === XMLHttpRequest.DONE) {
-                if (xhr.status === 200) {
-                    resolve(JSON.parse(xhr.response));
-                } else {
-                    reject(new Error(`Request failed with status ${xhr.status}`));
+        fetch(url)
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`Request failed with status ${response.status}`);
                 }
-            }
-        };
-
-        xhr.send();
+                return response.json();
+            })
+            .then(data => {
+                resolve(data);
+            })
+            .catch(error => {
+                reject(new Error("Request failed: " + error.message));
+            });
     });
 }
+
 
 function reqsToMap(requisites) {
     return requisites.reduce((acc, item) => {
@@ -91,7 +92,7 @@ function renderOrganization(orgInfo, template, container) {
                 orgInfo.buhForms[orgInfo.buhForms.length - 1].form2[0] &&
                 orgInfo.buhForms[orgInfo.buhForms.length - 1].form2[0]
                     .endValue) ||
-                0
+            0
         );
     } else {
         money.textContent = "—";
