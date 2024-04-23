@@ -6,15 +6,14 @@ const API = {
 };
 
 
-
 async function run() {
     const orgOgrns = await sendRequest(API.organizationList);
     const ogrns = orgOgrns.join(",");
 
     const promises = [
-        sendRequest(`${API.orgReqs}?ogrn=${ogrns}`), // Промис, который разрешится через 1 секунду
-        sendRequest(`${API.analytics}?ogrn=${ogrns}`), // Промис, который разрешится через 2 секунды
-        sendRequest(`${API.buhForms}?ogrn=${ogrns}`)  // Промис, который разрешится через 3 секунды
+        sendRequest(`${API.orgReqs}?ogrn=${ogrns}`),
+        sendRequest(`${API.analytics}?ogrn=${ogrns}`),
+        sendRequest(`${API.buhForms}?ogrn=${ogrns}`)
     ];
 
     Promise.all(promises)
@@ -28,6 +27,9 @@ async function run() {
             render(orgsMap, orgOgrns);
         })
 }
+
+run();
+
 
 function sendRequest(url) {
     return new Promise((resolve) => {
