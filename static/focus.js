@@ -5,7 +5,6 @@ const API = {
     buhForms: "/api3/buh",
 };
 
-
 async function run() {
     const orgOgrns = await sendRequest(API.organizationList);
     const ogrns = orgOgrns.join(",");
@@ -43,7 +42,6 @@ function sendRequest(url) {
         xhr.send();
     });
 }
-
 
 function reqsToMap(requisites) {
     return requisites.reduce((acc, item) => {
@@ -93,7 +91,7 @@ function renderOrganization(orgInfo, template, container) {
                 orgInfo.buhForms[orgInfo.buhForms.length - 1].form2[0] &&
                 orgInfo.buhForms[orgInfo.buhForms.length - 1].form2[0]
                     .endValue) ||
-            0
+                0
         );
     } else {
         money.textContent = "—";
